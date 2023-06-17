@@ -9,6 +9,10 @@
 (defprotocol Evaluable
   (evaluate [this]))
 
+(defn- map-evaluate-and-apply [x]
+  (let [[l op r] (map evaluate x)]
+    (apply op [l r])))
+
 (defrecord Num [num]
   Evaluable
   (evaluate [{this :num}] (bigdec this)))
@@ -26,14 +30,12 @@
   Evaluable
   (evaluate [{this :term}]
     (cond
-      (vector? this) (let [[l op r] (map evaluate this)]
-                       (apply op [l r]))
+      (vector? this) (map-evaluate-and-apply this)
       :else (evaluate this))))
 
 (defrecord Expr [expr]
   Evaluable
   (evaluate [{this :expr}]
     (cond
-      (vector? this) (let [[l op r] (map evaluate this)]
-                       (apply op [l r]))
+      (vector? this) (map-evaluate-and-apply this)
       :else (evaluate this))))
