@@ -1,4 +1,5 @@
-(ns evaluable)
+(ns evaluable
+  (:require [func :as f]))
 
 (def ops
   {"*" clojure.core/*
@@ -39,3 +40,11 @@
     (cond
       (vector? this) (map-evaluate-and-apply this)
       :else (evaluate this))))
+
+(defrecord Func [identifier expr]
+  Evaluable
+  (evaluate [_]
+    (let [ev-expr (evaluate expr)
+          ev-func (get f/functions identifier)]
+      (when ev-func
+        (ev-func ev-expr)))))
